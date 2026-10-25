@@ -117,6 +117,14 @@
   .bye h2 { font-family: var(--serif); font-size: clamp(1.5rem, 5vw, 2.2rem); margin: 0 0 10px; }
   .bye p { margin: 0 0 22px; color: #c9d6f3; max-width: 28em; }
   .bye button { height: 46px; padding: 0 22px; border-radius: 12px; border: 1px solid var(--gold); background: rgba(6,23,68,.7); color: #fff; font: 600 .95rem var(--sans); cursor: pointer; }
+  .opening { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; text-align: center; padding: 24px;
+    background: radial-gradient(ellipse at 50% 35%, #123a8f, var(--navy-deep) 70%); color: #fff; }
+  .opening[hidden] { display: none; }
+  .opening img { width: 120px; height: 120px; display: block; margin: 0 auto 22px; }
+  .opening p { margin: 0; font-family: var(--serif); font-size: 1.4rem; }
+  .spin { width: 34px; height: 34px; margin: 22px auto 0; border-radius: 50%; border: 3px solid rgba(246,210,122,.3); border-top-color: var(--gold-light); animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spin { animation-duration: 3s; } }
 </style>
 </head>
 <body>
@@ -125,6 +133,13 @@
     <h2 id="byeTitle">You can close the app now</h2>
     <p>Your phone or browser did not let the app close itself. Swipe it away from your recent apps, or press the Home button.</p>
     <button type="button" id="byeBack">Back to Bright Path</button>
+  </div>
+</div>
+<div class="opening" id="opening" hidden role="status" aria-live="polite">
+  <div>
+    <img src="logo.png" alt="">
+    <p id="openingText">Opening…</p>
+    <div class="spin" aria-hidden="true"></div>
   </div>
 </div>
 <div class="page">
@@ -197,6 +212,22 @@
       setTimeout(function () { bye.hidden = false; document.getElementById('byeBack').focus(); }, 300);
     });
     document.getElementById('byeBack').addEventListener('click', function () { bye.hidden = true; });
+  })();
+</script>
+<script>
+  (function () {
+    var box = document.getElementById('opening');
+    var label = document.getElementById('openingText');
+    document.querySelectorAll('.apps a').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+        e.preventDefault();
+        label.textContent = 'Opening ' + a.querySelector('strong').textContent + '…';
+        box.hidden = false;
+        setTimeout(function () { location.href = a.href; }, 150);
+      });
+    });
+    window.addEventListener('pageshow', function () { box.hidden = true; });
   })();
 </script>
 </body>

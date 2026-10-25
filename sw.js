@@ -1,6 +1,6 @@
 // Caches only the hub's own files so the homepage opens offline.
 // The three linked sites are separate and keep their own caching.
-const CACHE = 'bp-hub-v4';
+const CACHE = 'bp-hub-v5';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'logo.png'];
 
 self.addEventListener('install', function (e) {
