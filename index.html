@@ -125,6 +125,15 @@
   .spin { width: 34px; height: 34px; margin: 22px auto 0; border-radius: 50%; border: 3px solid rgba(246,210,122,.3); border-top-color: var(--gold-light); animation: spin 0.9s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .spin { animation-duration: 3s; } }
+  .install { position: relative; display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 40px auto 0; }
+  .install[hidden] { display: none; }
+  .install button { display: inline-flex; align-items: center; gap: 10px; height: 54px; padding: 0 28px; border-radius: 14px; cursor: pointer;
+    background: linear-gradient(160deg, #123a8f, var(--navy-deep)); color: #fff; border: 1px solid var(--gold);
+    font: 600 1.05rem var(--sans); box-shadow: 0 8px 18px rgba(6,23,68,.28); }
+  .install button:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+  .install button:active { transform: scale(.98); }
+  .install .hint { margin: 0; max-width: 30em; text-align: center; color: var(--muted); font-size: .95rem; }
+  .install .hint[hidden] { display: none; }
 </style>
 </head>
 <body>
@@ -192,6 +201,13 @@
         </a>
       </li>
     </ul>
+        <div class="install" id="install" hidden>
+      <button type="button" id="installBtn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f6d27a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>
+        Install app
+      </button>
+      <p class="hint" id="installHint" hidden></p>
+    </div>
     <div class="foot">&copy; Bright Path Academy</div>
     <svg class="corner" viewBox="0 0 360 120" aria-hidden="true"><path d="M0 0 C120 40 240 90 360 120 H0 Z" fill="#0b2a66"/><path d="M0 0 C120 40 240 90 360 120" fill="none" stroke="#e3a92f" stroke-width="4"/></svg>
   </main>
@@ -228,6 +244,38 @@
       });
     });
     window.addEventListener('pageshow', function () { box.hidden = true; });
+  })();
+</script>
+<script>
+  (function () {
+    var wrap = document.getElementById('install');
+    var btn = document.getElementById('installBtn');
+    var hint = document.getElementById('installHint');
+    var deferred = null;
+    var installed = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (!installed) wrap.hidden = false;
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      deferred = e;
+    });
+    window.addEventListener('appinstalled', function () { wrap.hidden = true; deferred = null; });
+
+    btn.addEventListener('click', function () {
+      if (deferred) {
+        deferred.prompt();
+        deferred.userChoice.then(function (choice) {
+          if (choice.outcome === 'accepted') wrap.hidden = true;
+          deferred = null;
+        });
+        return;
+      }
+      var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      hint.textContent = ios
+        ? 'On iPhone or iPad: tap the Share button in Safari, then choose Add to Home Screen.'
+        : 'Open your browser menu and choose Install app or Add to Home screen.';
+      hint.hidden = false;
+    });
   })();
 </script>
 </body>
